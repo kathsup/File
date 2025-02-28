@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  *
@@ -16,7 +17,7 @@ public class CMDGUI extends JFrame implements ActionListener {
     private JLabel DIR;
     private JTextField dirTextField;
     private JTextArea outputArea;
-    
+            ArrayList <String> direcciones;
     private archivos fileManager;
     private String currentPath = "C:/Users/";
     
@@ -124,6 +125,7 @@ public class CMDGUI extends JFrame implements ActionListener {
                         currentPath = parentDir.getAbsolutePath() + "/";
                         updateDIRLabel();
                         outputArea.append("Directorio actual: " + currentPath + "\n");
+                        direcciones.add(currentPath);
                     } else {
                         outputArea.append("Ya está en el directorio raíz\n");
                     }

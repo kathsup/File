@@ -94,7 +94,7 @@ public class archivos {
                 dir.append("\t").append(child.getName()).append("\n");
             }}
             dir.append("{").append(files).append(") files y {").append(dirs).append(") dirs");
-            dir.append("bytes: ").append(bytes).append("\n");
+            dir.append("\nbytes: ").append(bytes).append("\n");
         
         }
         else{

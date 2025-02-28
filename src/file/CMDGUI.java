@@ -181,24 +181,19 @@ public class CMDGUI extends JFrame implements ActionListener {
 
             case "...":
                 break; 
-                
-              case "escribir":
-                if (arg.contains(" ")) {
-                    int firstSpaceIndex = arg.indexOf(" ");
-                    String fileName = arg.substring(0, firstSpaceIndex);
-                    String content = arg.substring(firstSpaceIndex + 1);
-                    
-                    String filePath = currentPath + fileName;
-                    fileManager.setFile(filePath);
-                    String result = fileManager.Escribir(content);
-                    
-                    if (result == null) {
-                        outputArea.append("Contenido escrito en: " + fileName + "\n");
-                    } else {
-                        outputArea.append("Error al escribir en el archivo: " + result + "\n");
+          case "escribir":
+                if (!arg.isEmpty()) {
+                    // Verificamos si el archivo existe o lo creamos
+                    File file = new File(currentPath + arg);
+                    if (!file.exists()) {
+                        fileManager.setFile(currentPath + arg);
+                        fileManager.mfile();
                     }
+                
+                    DIR.setText("ESCRIBIR> ");
                 } else {
-                    outputArea.append("Uso: Escribir [archivo] [contenido]\n");
+                    outputArea.append("Error: Se requiere un nombre para el archivo\n");
+                    outputArea.append("Uso: escribir [nombre_archivo]\n");
                 }
                 break;
                 
@@ -217,8 +212,7 @@ public class CMDGUI extends JFrame implements ActionListener {
                     } catch (FileNotFoundException ex) {
                         outputArea.append("Archivo no encontrado: " + arg + "\n");
                     }
-                } else {
-                    outputArea.append("Uso: Leer [archivo]\n");
+                } else{
                 }
                 break;
                 

@@ -44,29 +44,40 @@ public class archivos {
         return sdf.format(fechaActual);
     }
     
-   public boolean puntos(ArrayList<String> array) {
+  public boolean puntos(ArrayList<String> array) {
     if (!array.isEmpty()) {
-        String direccion = array.get(array.size() - 1);
-        File tempFile = new File(direccion);
-        if (tempFile.exists() && tempFile.isDirectory()) {  
-            Cd(direccion);
-            return true;
+        array.remove(array.size() - 1); 
+        if (!array.isEmpty()) {
+            String nuevaDireccion = array.get(array.size() - 1);
+            File tempFile = new File(nuevaDireccion);
+            if (tempFile.exists() && tempFile.isDirectory()) {
+                Cd(nuevaDireccion);
+                return true;
+            }
         }
     }
     return false;
-   }
+}
+
 
     
     
-    public boolean Rm( File file){
-        if(file.isDirectory()){
-            for(File hijos : file.listFiles()){
-                Rm(hijos);
-            }
-        
-        }
-        return file.delete();
+ public boolean Rm(File file) {
+    if (!file.exists()) {
+        return false;
     }
+    
+    if (file.isDirectory()) {
+        File[] files = file.listFiles();
+        if (files != null) {
+            for (File child : files) {
+                Rm(child); 
+            }
+        }
+    }
+    
+    return file.delete();
+}
       
     public void Cd( String direccion ){
         file = new File(direccion);
@@ -102,20 +113,19 @@ public class archivos {
         }
         return dir;
     }
-    
-    public String Escribir(String contenido){
-        if(file.isDirectory()){
-        try{
-        Path path = Paths.get(file.getPath());
-        Files.writeString( path, contenido, StandardOpenOption.APPEND);
-        return null;
-        
-        }catch(IOException e){
-        return "Error" + e.getMessage();
-        }}
-        return "No es un archivo";
+
+    public String Escribir(String contenido) {
+    if (file.isFile()) {  
+        try {
+            Files.write(Paths.get(file.getPath()), contenido.getBytes(), StandardOpenOption.APPEND);
+            return null;  
+        } catch (IOException e) {
+            return "Error: " + e.getMessage();
+        }
     }
-    
+    return "No es un archivo valido.";
+}
+  
     public StringBuilder Leer() throws FileNotFoundException {
     StringBuilder texto = new StringBuilder();
         if (file.canRead()) {

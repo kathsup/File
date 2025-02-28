@@ -127,23 +127,6 @@ public class archivos {
         }
     return texto;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+ 
     
 }

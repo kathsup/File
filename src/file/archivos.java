@@ -8,12 +8,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
 
 public class archivos {
-    
      private File file = null;
      private Date fechaActual;
 
@@ -44,10 +44,18 @@ public class archivos {
         return sdf.format(fechaActual);
     }
     
-    public void puntos(){
-        
+   public boolean puntos(ArrayList<String> array) {
+    if (!array.isEmpty()) {
+        String direccion = array.get(array.size() - 1);
+        File tempFile = new File(direccion);
+        if (tempFile.exists() && tempFile.isDirectory()) {  
+            Cd(direccion);
+            return true;
+        }
+    }
+    return false;
+   }
 
-}
     
     
     public boolean Rm( File file){

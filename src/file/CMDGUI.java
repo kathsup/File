@@ -13,9 +13,7 @@ public class CMDGUI extends JFrame implements ActionListener {
     private JTextField dirTextField;
     private JTextArea outputArea;
     
-    public static void main(String[] args) {
-        new CMDGUI();
-    }
+    
     
     public CMDGUI(){
         this.setTitle("Simbolo de Sistema");
@@ -27,7 +25,6 @@ public class CMDGUI extends JFrame implements ActionListener {
         Fondo.setBackground(Color.BLACK);
         Fondo.setLayout(null);
         
-        // DIR label
         DIR = new JLabel("C:/Users/>");
         DIR.setBounds(10, 10, 90, 30);
         DIR.setForeground(Color.WHITE);
@@ -38,11 +35,10 @@ public class CMDGUI extends JFrame implements ActionListener {
         dirTextField.setBackground(Color.BLACK);
         dirTextField.setForeground(Color.WHITE);
         dirTextField.setCaretColor(Color.WHITE);
-        dirTextField.setBorder(null); // Remove border
+        dirTextField.setBorder(null); 
         dirTextField.addActionListener(this); 
         Fondo.add(dirTextField);
         
-        // Add output text area for displaying command history
         outputArea = new JTextArea();
         outputArea.setBounds(10, 50, 1160, 500);
         outputArea.setBackground(Color.BLACK);
@@ -60,7 +56,7 @@ public class CMDGUI extends JFrame implements ActionListener {
         if (e.getSource() == dirTextField) {
             String command = dirTextField.getText();
             if (command != null && !command.isEmpty()) {
-                outputArea.append("C:/Users/> " + command + "\n");
+                outputArea.append("C:/Users/> " + command + ">\n");
                 
                 dirTextField.setText("");
             }

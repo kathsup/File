@@ -15,6 +15,8 @@ public class File {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+                new CMDGUI();
+
     }
     
 }

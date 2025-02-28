@@ -17,10 +17,12 @@ public class CMDGUI extends JFrame implements ActionListener {
     private JLabel DIR;
     private JTextField dirTextField;
     private JTextArea outputArea;
-            ArrayList <String> direcciones;
+    private ArrayList<String> direcciones = new ArrayList<>();
     private archivos fileManager;
     private String currentPath = "C:/Users/";
-    
+    private boolean modoEscritura = false;
+    private String archivoEscritura = "";
+
     public CMDGUI(){
         fileManager = new archivos();
         fileManager.setFile(currentPath);
@@ -60,23 +62,46 @@ public class CMDGUI extends JFrame implements ActionListener {
         this.setVisible(true);
     }
    
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == dirTextField) {
-            String command = dirTextField.getText();
-            if (command != null && !command.isEmpty()) {
-                outputArea.append("C:/Users/> " + command + "\n");
-                
-                try {
-                    processCommand(command);
-                } catch (Exception ex) {
-                    outputArea.append("Error: " + ex.getMessage() + "\n");
+  @Override
+public void actionPerformed(ActionEvent e) {
+    if (e.getSource() == dirTextField) {
+        String command = dirTextField.getText().trim();
+
+        if (modoEscritura) {
+            if (command.equalsIgnoreCase("salir")) {
+                modoEscritura = false;
+                archivoEscritura = "";
+                outputArea.append("Modo de escritura desactivado.\n");
+            } else {
+                fileManager.setFile(archivoEscritura);
+                String resultado = fileManager.Escribir(command + "\n");
+
+                if (resultado == null) {
+                    outputArea.append("Texto agregado: " + command + "\n");
+                } else {
+                    outputArea.append("Error al escribir en el archivo: " + resultado + "\n");
                 }
-                
-                dirTextField.setText("");
             }
+
+            dirTextField.setText("");
+            return; 
+        }
+
+        if (!command.isEmpty()) {
+            outputArea.append(currentPath + "> " + command + "\n");
+
+            try {
+                processCommand(command);
+            } catch (Exception ex) {
+                outputArea.append("Error: " + ex.getMessage() + "\n");
+            }
+
+            dirTextField.setText("");
         }
     }
+}
+
+
     
     private void processCommand(String command) throws IOException {
         String[] parts = command.split(" ", 2);
@@ -117,37 +142,39 @@ public class CMDGUI extends JFrame implements ActionListener {
                     outputArea.append("Error: Se requiere un nombre para el archivo\n");
                 }
                 break;
-            case "cd":
-                if (arg.isEmpty() || arg.equals("..")) {
-                    File currentDir = new File(currentPath);
-                    File parentDir = currentDir.getParentFile();
-                    if (parentDir != null) {
-                        currentPath = parentDir.getAbsolutePath() + "/";
-                        updateDIRLabel();
-                        outputArea.append("Directorio actual: " + currentPath + "\n");
-                        direcciones.add(currentPath);
-                    } else {
-                        outputArea.append("Ya está en el directorio raíz\n");
-                    }
-                } else {
-                    String newPath;
-                    if (arg.startsWith("/") || arg.contains(":")) {
-                        newPath = arg;
-                    } else {
-                        newPath = currentPath + arg;
-                    }
-                    
-                    File dir = new File(newPath);
-                    if (dir.exists() && dir.isDirectory()) {
-                        currentPath = dir.getAbsolutePath() + "/";
-                        currentPath = currentPath.replace("\\", "/");
-                        updateDIRLabel();
-                        outputArea.append("Directorio actual: " + currentPath + "\n");
-                    } else {
-                        outputArea.append("El directorio no existe: " + arg + "\n");
-                    }
-                }
-                break;
+          case "cd":
+    if (arg.isEmpty() || arg.equals("..")) {
+        File currentDir = new File(currentPath);
+        File parentDir = currentDir.getParentFile();
+        if (parentDir != null) {
+            currentPath = parentDir.getAbsolutePath() + "/";
+            updateDIRLabel();
+            outputArea.append("Directorio actual: " + currentPath + "\n");
+            direcciones.add(currentPath);
+        } else {
+            outputArea.append("Ya está en el directorio raíz\n");
+        }
+    } else {
+        String newPath;
+        if (arg.startsWith("/") || arg.contains(":")) {
+            newPath = arg;
+        } else {
+            newPath = currentPath + arg;
+        }
+        
+        File dir = new File(newPath);
+        if (dir.exists() && dir.isDirectory()) {
+            currentPath = dir.getAbsolutePath() + "/";
+            currentPath = currentPath.replace("\\", "/");
+            updateDIRLabel();
+            outputArea.append("Directorio actual: " + currentPath + "\n");
+            direcciones.add(currentPath); 
+        } else {
+            outputArea.append("El directorio no existe: " + arg + "\n");
+        }
+    }
+    break;
+
                 
             case "dir":
                 fileManager.setFile(currentPath);
@@ -163,42 +190,65 @@ public class CMDGUI extends JFrame implements ActionListener {
                 outputArea.append("Hora actual: " + fileManager.time() + "\n");
                 break;
                 
-            case "rm":
-                if (!arg.isEmpty()) {
-                    String filePath = currentPath + arg;
-                    File fileToDelete = new File(filePath);
-                    if (fileToDelete.exists()) {
-                        if (fileManager.Rm(fileToDelete)) {
-                            outputArea.append("Eliminado: " + arg + "\n");
-                        } else {
-                            outputArea.append("No se pudo eliminar: " + arg + "\n");
-                        }
-                    } else {
-                        outputArea.append("El archivo o directorio no existe: " + arg + "\n");
-                    }
-                } else {
-                    outputArea.append("Error: Se requiere especificar un archivo o directorio\n");
-                }
-                break;
+           case "rm":
+    if (!arg.isEmpty()) {
+        File fileToDelete = new File(currentPath + arg);
+        if (fileToDelete.exists()) {
+            if (fileManager.Rm(fileToDelete)) {
+                outputArea.append("Eliminado: " + arg + "\n");
+            } else {
+                outputArea.append("No se pudo eliminar: " + arg + " (puede estar en uso o sin permisos)\n");
+            }
+        } else {
+            outputArea.append("El archivo o directorio no existe: " + arg + "\n");
+        }
+    } else {
+        outputArea.append("Error: Se requiere especificar un archivo o directorio\n");
+    }
+    break;
 
-            case "...":
-                break; 
-          case "escribir":
-                if (!arg.isEmpty()) {
-                    // Verificamos si el archivo existe o lo creamos
-                    File file = new File(currentPath + arg);
-                    if (!file.exists()) {
-                        fileManager.setFile(currentPath + arg);
-                        fileManager.mfile();
-                    }
-                
-                    DIR.setText("ESCRIBIR> ");
-                } else {
-                    outputArea.append("Error: Se requiere un nombre para el archivo\n");
-                    outputArea.append("Uso: escribir [nombre_archivo]\n");
-                }
-                break;
-                
+           case "...":
+    if (!direcciones.isEmpty()) {
+        direcciones.remove(direcciones.size() - 1);
+        if (!direcciones.isEmpty()) {
+            currentPath = direcciones.get(direcciones.size() - 1); 
+            updateDIRLabel();
+            outputArea.append("Retrocediendo a: " + currentPath + "\n");
+        } else {
+            outputArea.append("No hay más directorios en el historial.\n");
+        }
+    } else {
+        outputArea.append("No se pudo retroceder en el historial de directorios\n");
+    }
+    break;
+
+     case "escribir":
+    if (!arg.isEmpty()) {
+        String filePath = currentPath + arg;
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            outputArea.append("El archivo no existe. Usa 'mfile' para crearlo primero.\n");
+        } else {
+            archivoEscritura = filePath;
+            modoEscritura = true;
+            outputArea.append("Modo de escritura activado para: " + arg + "\n");
+            outputArea.append("Escribe el contenido y presiona Enter. Usa 'salir' para finalizar.\n");
+        }
+    } else {
+        outputArea.append("Error: Se requiere un nombre de archivo.\n");
+    }
+    break;
+
+    case "salir":
+    if (modoEscritura) {
+        modoEscritura = false;
+        archivoEscritura = "";
+        outputArea.append("Modo de escritura desactivado.\n");
+    } else {
+        outputArea.append("Comando no reconocido: " + cmd + "\n");
+    }
+    break;   
             case "leer":
                 if (!arg.isEmpty()) {
                     String filePath = currentPath + arg;
@@ -227,9 +277,6 @@ public class CMDGUI extends JFrame implements ActionListener {
     private void updateDIRLabel() {
         DIR.setText(currentPath + ">");
     }
-  
-    
-    public static void main(String[] args) {
-        new CMDGUI();
-    }
+
+   
 }
